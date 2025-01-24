@@ -12,14 +12,6 @@ class FutureReleasesScatter(Section):
         self.app: dash.Dash = app
         self.data: pd.DataFrame = data
 
-        # Filter out rows where release_date is in 2025 or later
-        self.filtered_data = data[data["release_date"] < pd.Timestamp("2025-01-01")]
-
-        # Calculate the decade for filtered_data
-        self.filtered_data["decade"] = (
-            self.filtered_data["release_date"].dt.year // 10
-        ) * 10
-
         self.future_movies = data[data["release_date"] > pd.Timestamp("2024-12-31")]
 
         self.table_fig = px.scatter(
