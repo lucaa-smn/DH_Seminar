@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 
 
-class GenreDecadeAnalysis:
+class BiggestGenreChart:
     def __init__(self, app: dash.Dash, data: pd.DataFrame) -> None:
         self.app = app
         self.data = data
