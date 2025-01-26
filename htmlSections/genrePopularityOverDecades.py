@@ -8,10 +8,17 @@ import plotly.express as px
 class GenrePopularityOverDecades:
     def __init__(self, app: dash.Dash, data: pd.DataFrame) -> None:
         self.app = app
-        self.data = data
+
+        # Work with the passed data
+        self.data = data.copy()
 
         # Ensure release_date is converted to datetime
-        self.data["release_date"] = pd.to_datetime(self.data["release_date"])
+        self.data["release_date"] = pd.to_datetime(
+            self.data["release_date"], errors="coerce"
+        )
+
+        # Filter out movies released in 2025 or later
+        self.data = self.data[self.data["release_date"].dt.year < 2025]
 
         # Create the decade column
         self.data["decade"] = (self.data["release_date"].dt.year // 10) * 10
@@ -36,7 +43,7 @@ class GenrePopularityOverDecades:
                 dcc.Graph(id="genre-popularity-chart"),
                 html.H3("Select a Decade to View Genre Ranking"),
                 dcc.Dropdown(
-                    id="decade-dropdown",
+                    id="decade-dropdown-genre-popularity",
                     options=[
                         {"label": str(decade), "value": decade}
                         for decade in sorted(self.genre_popularity["decade"].unique())
@@ -54,9 +61,10 @@ class GenrePopularityOverDecades:
         return self.div
 
     def register_callbacks(self):
+
         @self.app.callback(
             Output("genre-popularity-chart", "figure"),
-            Input("decade-dropdown", "value"),
+            Input("decade-dropdown-genre-popularity", "value"),
         )
         def update_genre_popularity_chart(selected_decade):
             # Filter data for the selected decade
@@ -81,7 +89,7 @@ class GenrePopularityOverDecades:
 
         @self.app.callback(
             Output("decade-genre-ranking-chart", "figure"),
-            Input("decade-dropdown", "value"),
+            Input("decade-dropdown-genre-popularity", "value"),
         )
         def update_decade_genre_ranking_chart(selected_decade):
             # Filter data for the selected decade
