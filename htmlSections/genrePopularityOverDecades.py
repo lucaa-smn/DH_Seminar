@@ -40,7 +40,6 @@ class GenrePopularityOverDecades:
                 html.H1(
                     "Genre Popularity Across Decades", style={"textAlign": "center"}
                 ),
-                dcc.Graph(id="genre-popularity-chart"),
                 html.H3("Select a Decade to View Genre Ranking"),
                 dcc.Dropdown(
                     id="decade-dropdown-genre-popularity",
@@ -61,31 +60,6 @@ class GenrePopularityOverDecades:
         return self.div
 
     def register_callbacks(self):
-
-        @self.app.callback(
-            Output("genre-popularity-chart", "figure"),
-            Input("decade-dropdown-genre-popularity", "value"),
-        )
-        def update_genre_popularity_chart(selected_decade):
-            # Filter data for the selected decade
-            filtered_popularity = self.genre_popularity[
-                self.genre_popularity["decade"] == selected_decade
-            ]
-
-            # Create bar chart of average popularity by genre
-            fig = px.bar(
-                filtered_popularity,
-                x="genres",
-                y="average_popularity",
-                title=f"Average Popularity of Genres in {selected_decade}",
-                labels={"genres": "Genre", "average_popularity": "Average Popularity"},
-            )
-            fig.update_layout(
-                xaxis_title="Genre",
-                yaxis_title="Average Popularity",
-                xaxis=dict(categoryorder="total descending"),
-            )
-            return fig
 
         @self.app.callback(
             Output("decade-genre-ranking-chart", "figure"),
