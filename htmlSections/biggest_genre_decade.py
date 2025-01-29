@@ -10,11 +10,9 @@ class BiggestGenreChart:
         self.app = app
         self.data = data
 
-        # Explode genres into individual rows
         self.data["genres"] = self.data["genres"].str.split(", ")
         self.exploded_data = self.data.explode("genres").dropna(subset=["genres"])
 
-        # Precompute the single most popular genre per decade
         self.most_popular_genres = (
             self.exploded_data.groupby(["decade", "genres"])
             .size()
@@ -25,7 +23,6 @@ class BiggestGenreChart:
             .reset_index()
         )
 
-        # Create Dash layout
         self.div = html.Div(
             [
                 html.H1("Genre Analysis Over Decades", style={"textAlign": "center"}),
@@ -43,7 +40,6 @@ class BiggestGenreChart:
             ]
         )
 
-        # Register callbacks
         self.register_callbacks()
 
     def get_html(self) -> html.Div:
@@ -75,12 +71,10 @@ class BiggestGenreChart:
             Input("decade-dropdown", "value"),
         )
         def update_genre_distribution_chart(selected_decade):
-            # Filter data for the selected decade
             decade_data = self.exploded_data[
                 self.exploded_data["decade"] == selected_decade
             ]
 
-            # Group and count genres
             genre_counts = (
                 decade_data.groupby("genres")
                 .size()

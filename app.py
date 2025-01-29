@@ -14,13 +14,11 @@ import htmlSections.section
 
 app = dash.Dash(__name__)
 
-# Load and preprocess data
 data = pd.read_csv("./data/Imdb-Movie-Dataset.csv").drop_duplicates()
 data["release_date"] = pd.to_datetime(data["release_date"], errors="coerce")
 filtered_data = data[data["release_date"] < pd.Timestamp("2025-01-01")].copy()
 filtered_data["decade"] = (filtered_data["release_date"].dt.year // 10) * 10
 
-# Define sections
 general_data_sections: list[htmlSections.section.Section] = [
     ItemAnalysis(app=app, data=filtered_data),
     # Statistical_Evaluation(app=app, data=filtered_data),
@@ -36,10 +34,8 @@ genre_analysis_sections: list[htmlSections.section.Section] = [
     GenreVoteAverageOverDecades(app=app, data=data),
 ]
 
-# App layout
 app.layout = html.Div(
     [
-        # General description
         html.Div(
             [
                 html.H1(
@@ -60,7 +56,6 @@ app.layout = html.Div(
             ],
             style={"padding": "20px"},
         ),
-        # General Data section
         html.Div(
             [
                 html.H1(
@@ -70,8 +65,7 @@ app.layout = html.Div(
                 *[section.get_html() for section in general_data_sections],
             ],
             style={"margin-bottom": "60px"},
-        ),  # Adds extra spacing after General Data
-        # Genre Analysis section
+        ),
         html.Div(
             [
                 html.H1(
@@ -83,7 +77,7 @@ app.layout = html.Div(
         ),
     ],
     style={"font-family": "Arial, sans-serif", "padding": "20px"},
-)  # General page styling
+)
 
 if __name__ == "__main__":
     app.run_server(debug=True)

@@ -9,21 +9,16 @@ class GenrePopularityOverDecades:
     def __init__(self, app: dash.Dash, data: pd.DataFrame) -> None:
         self.app = app
 
-        # Work with the passed data
         self.data = data.copy()
 
-        # Ensure release_date is converted to datetime
         self.data["release_date"] = pd.to_datetime(
             self.data["release_date"], errors="coerce"
         )
 
-        # Filter out movies released in 2025 or later
         self.data = self.data[self.data["release_date"].dt.year < 2025]
 
-        # Create the decade column
         self.data["decade"] = (self.data["release_date"].dt.year // 10) * 10
 
-        # Explode genres into individual rows
         self.data["genres"] = self.data["genres"].str.split(", ")
         self.exploded_data = self.data.explode("genres").dropna(subset=["genres"])
 
@@ -34,7 +29,6 @@ class GenrePopularityOverDecades:
             .reset_index(name="average_popularity")
         )
 
-        # Create Dash layout
         self.div = html.Div(
             [
                 html.H1(
@@ -53,7 +47,6 @@ class GenrePopularityOverDecades:
             ]
         )
 
-        # Register callbacks
         self.register_callbacks()
 
     def get_html(self) -> html.Div:
@@ -66,12 +59,10 @@ class GenrePopularityOverDecades:
             Input("decade-dropdown-genre-popularity", "value"),
         )
         def update_decade_genre_ranking_chart(selected_decade):
-            # Filter data for the selected decade
             filtered_popularity = self.genre_popularity[
                 self.genre_popularity["decade"] == selected_decade
             ]
 
-            # Create bar chart of genre popularity
             fig = px.bar(
                 filtered_popularity,
                 x="genres",

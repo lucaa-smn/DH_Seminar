@@ -12,7 +12,6 @@ class VotesDecadeBar(Section):
         self.app: dash.Dash = app
         self.data: pd.DataFrame = data
 
-        # Group by decade and count the number of films
         self.decade_counts = (
             self.data["decade"].value_counts().sort_index().reset_index()
         )
