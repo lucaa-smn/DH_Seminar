@@ -7,6 +7,8 @@ from htmlSections.votes_decade_bar import VotesDecadeBar
 from htmlSections.biggest_genre_decade import BiggestGenreChart
 from htmlSections.genrePopularityOverDecades import GenrePopularityOverDecades
 from htmlSections.itemDistribution import ItemDistribution
+from htmlSections.statistical_evaluation import Statistical_Evaluation
+from htmlSections.itemAnalysis import ItemAnalysis
 import htmlSections.section
 
 app = dash.Dash(__name__)
@@ -19,7 +21,9 @@ filtered_data["decade"] = (filtered_data["release_date"].dt.year // 10) * 10
 
 # Define sections
 general_data_sections: list[htmlSections.section.Section] = [
-    ItemDistribution(app=app, data=filtered_data),
+    ItemAnalysis(app=app, data=filtered_data),
+    # Statistical_Evaluation(app=app, data=filtered_data),
+    # ItemDistribution(app=app, data=filtered_data),
     ReleaseDecadeBar(app=app, data=filtered_data),
     VotesDecadeBar(app=app, data=filtered_data),
     FutureReleasesScatter(app=app, data=data),
