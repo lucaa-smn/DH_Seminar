@@ -9,6 +9,7 @@ from htmlSections.genrePopularityOverDecades import GenrePopularityOverDecades
 from htmlSections.itemDistribution import ItemDistribution
 from htmlSections.statistical_evaluation import Statistical_Evaluation
 from htmlSections.itemAnalysis import ItemAnalysis
+from htmlSections.GenreMovieRankingOverDecades import GenreVoteAverageOverDecades
 import htmlSections.section
 
 app = dash.Dash(__name__)
@@ -32,6 +33,7 @@ general_data_sections: list[htmlSections.section.Section] = [
 genre_analysis_sections: list[htmlSections.section.Section] = [
     BiggestGenreChart(app=app, data=filtered_data),
     GenrePopularityOverDecades(app=app, data=data),
+    GenreVoteAverageOverDecades(app=app, data=data),
 ]
 
 # App layout
