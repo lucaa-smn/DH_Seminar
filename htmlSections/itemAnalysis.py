@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from dash import dcc, html
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 from pandas.api.types import is_numeric_dtype
 
 
@@ -11,10 +12,10 @@ class ItemAnalysis:
         self.app: dash.Dash = app
         self.data: pd.DataFrame = data.copy()
 
+        # Filtering numeric columns
         self.numeric_columns = [
             col for col in self.data.columns if is_numeric_dtype(self.data[col])
         ]
-
         columns_to_exclude = ["id", "decade", "adult"]
         self.numeric_columns = [
             col for col in self.numeric_columns if col not in columns_to_exclude
@@ -22,18 +23,24 @@ class ItemAnalysis:
 
         self.div = html.Div(
             [
-                html.H1("Item Analyse", style={"textAlign": "center"}),
-                html.Label("Wählen Sie ein Attribut zur Analyse:"),
+                # Title
+                html.H1(
+                    "Item Analysis", style={"textAlign": "center", "color": "#333"}
+                ),
+                # Dropdown for selecting attribute
+                html.Label("Select Attribute for Analysis:"),
                 dcc.Dropdown(
                     id="attribute-dropdown",
                     options=[
                         {"label": col, "value": col} for col in self.numeric_columns
                     ],
                     value=self.numeric_columns[0] if self.numeric_columns else None,
+                    style={"width": "100%", "margin-bottom": "20px"},
                 ),
+                # Runtime Filter Section
                 html.Div(
                     [
-                        html.Label("Runtime Outlier-Filter:"),
+                        html.Label("Runtime Outlier Filter:"),
                         dcc.RadioItems(
                             id="runtime-filter-radio",
                             options=[
@@ -41,34 +48,60 @@ class ItemAnalysis:
                                 {"label": "No Filter", "value": "no_filter"},
                             ],
                             value="no_filter",
-                            labelStyle={"display": "inline-block"},
+                            labelStyle={
+                                "display": "inline-block",
+                                "margin-right": "20px",
+                            },
                         ),
-                    ]
+                    ],
+                    style={"margin-bottom": "20px"},
                 ),
+                # Budget and Revenue Thresholds
                 html.Div(
                     [
-                        html.Label("Budget Threshold:"),
-                        dcc.Input(
-                            id="budget-threshold-input",
-                            type="number",
-                            value=0,
-                            debounce=True,
+                        dbc.Row(
+                            [
+                                dbc.Col(html.Label("Budget Threshold:"), width=4),
+                                dbc.Col(
+                                    dcc.Input(
+                                        id="budget-threshold-input",
+                                        type="number",
+                                        value=0,
+                                        debounce=True,
+                                        style={"width": "100%"},
+                                    ),
+                                    width=8,
+                                ),
+                            ],
+                            style={"margin-bottom": "15px"},
                         ),
-                        html.Br(),
-                        html.Label("Revenue Threshold:"),
-                        dcc.Input(
-                            id="revenue-threshold-input",
-                            type="number",
-                            value=0,
-                            debounce=True,
+                        dbc.Row(
+                            [
+                                dbc.Col(html.Label("Revenue Threshold:"), width=4),
+                                dbc.Col(
+                                    dcc.Input(
+                                        id="revenue-threshold-input",
+                                        type="number",
+                                        value=0,
+                                        debounce=True,
+                                        style={"width": "100%"},
+                                    ),
+                                    width=8,
+                                ),
+                            ],
+                            style={"margin-bottom": "30px"},
                         ),
                     ]
                 ),
-                html.Div(id="statistical-summary2"),
+                # Statistical Summary
+                html.Div(id="statistical-summary2", style={"margin-bottom": "30px"}),
+                # Histogram Graph
                 dcc.Graph(id="histogram"),
-            ]
+            ],
+            style={"padding": "20px"},
         )
 
+        # Registering the callbacks
         self.register_callbacks()
 
     def get_html(self) -> html.Div:
@@ -91,37 +124,51 @@ class ItemAnalysis:
             attribute, runtime_filter, budget_threshold, revenue_threshold
         ):
             if not attribute:
-                return html.P("Bitte wählen Sie ein Attribut."), px.histogram()
+                return (
+                    html.P("Please select an attribute for analysis."),
+                    px.histogram(),
+                )
 
+            # Filter data based on user input
             filtered_data = self.data.copy()
 
+            # Filter out runtime outliers if selected
             if runtime_filter == "filter" and attribute == "runtime":
                 filtered_data = self.filter_outliers(filtered_data, "runtime")
 
+            # Apply budget and revenue thresholds
             filtered_data = self.filter_budget_revenue(
                 filtered_data, budget_threshold, revenue_threshold
             )
 
+            # Generate summary stats
             summary_stats = filtered_data[attribute].describe()
 
             stats_div = html.Div(
                 [
-                    html.H3(f"Statistische Kennzahlen für {attribute}"),
-                    html.P(f"👤 Anzahl: {summary_stats['count']:.0f}"),
-                    html.P(f"📊 Mittelwert: {summary_stats['mean']:.2f}"),
+                    html.H3(f"Statistical Summary for {attribute}"),
+                    html.P(f"👤 Count: {summary_stats['count']:.0f}"),
+                    html.P(f"📊 Mean: {summary_stats['mean']:.2f}"),
                     html.P(f"🔸 Median: {summary_stats['50%']:.2f}"),
-                    html.P(f"📉 Minimum: {summary_stats['min']:.2f}"),
-                    html.P(f"📈 Maximum: {summary_stats['max']:.2f}"),
-                    html.P(f"📏 Standardabweichung: {summary_stats['std']:.2f}"),
-                ]
+                    html.P(f"📉 Min: {summary_stats['min']:.2f}"),
+                    html.P(f"📈 Max: {summary_stats['max']:.2f}"),
+                    html.P(f"📏 Std Dev: {summary_stats['std']:.2f}"),
+                ],
+                style={
+                    "border": "1px solid #ccc",
+                    "padding": "15px",
+                    "border-radius": "5px",
+                },
             )
 
+            # Create histogram
             histogram = px.histogram(
                 filtered_data,
                 x=attribute,
-                title=f"Histogramm von {attribute}",
+                title=f"Histogram of {attribute}",
                 nbins=20,
-                labels={attribute: "Wert", "count": "Häufigkeit"},
+                labels={attribute: "Value", "count": "Frequency"},
+                template="plotly_dark",  # Use a dark theme for plotly
             )
 
             return stats_div, histogram
@@ -141,6 +188,7 @@ class ItemAnalysis:
         if column not in data.columns or not is_numeric_dtype(data[column]):
             return data
 
+        # Calculate IQR for outlier detection
         Q1 = data[column].quantile(0.25)
         Q3 = data[column].quantile(0.75)
         IQR = Q3 - Q1

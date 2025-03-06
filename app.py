@@ -64,6 +64,29 @@ sidebar = dbc.Card(
 # Main Content Area
 content = html.Div(id="page-content", className="p-4", style={"margin-left": "270px"})
 
+# Welcome Message when no page is selected
+welcome_message = dbc.Card(
+    dbc.CardBody(
+        [
+            html.H3("Welcome to the Movie Data Dashboard!", className="text-center"),
+            html.P(
+                "This dashboard provides insights into various aspects of movies, including their release decades, votes, genres, and more.",
+                className="text-center",
+            ),
+            html.P(
+                "To get started, please choose a section from the navigation menu on the left.",
+                className="text-center",
+            ),
+            html.Hr(),
+            html.P(
+                "Explore the data by clicking one of the links in the sidebar.",
+                className="text-center",
+            ),
+        ]
+    ),
+    className="shadow p-4",
+)
+
 # App Layout with Sidebar-Only Navigation
 app.layout = html.Div(
     [
@@ -85,7 +108,9 @@ def display_page(pathname):
         return dbc.Card(
             dbc.CardBody(sections[page_key].get_html()), className="shadow p-4"
         )
-    return html.H4("404 - Page Not Found", className="text-center text-danger")
+
+    # If no page selected, show welcome message
+    return welcome_message
 
 
 # Run Server
