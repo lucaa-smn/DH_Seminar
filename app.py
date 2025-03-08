@@ -11,6 +11,8 @@ from htmlSections.biggest_genre_decade import BiggestGenreChart
 from htmlSections.genrePopularityOverDecades import GenrePopularityOverDecades
 from htmlSections.itemAnalysis import ItemAnalysis
 from htmlSections.GenreMovieRankingOverDecades import GenreVoteAverageOverDecades
+from htmlSections.budgetRevenueAnalysis import BudgetRevenueScatter
+from htmlSections.ratingPopularityScatter import RatingPopularityScatter
 import htmlSections.section
 
 # Initialize Dash app with Bootstrap theme
@@ -27,12 +29,14 @@ filtered_data["decade"] = (filtered_data["release_date"].dt.year // 10) * 10
 # Section Components
 sections = {
     "Overview": ItemAnalysis(app=app, data=filtered_data),
-    "Release Decades": ReleaseDecadeBar(app=app, data=filtered_data),
+    "Releases Per  Decade": ReleaseDecadeBar(app=app, data=filtered_data),
     "Votes Per Decade": VotesDecadeBar(app=app, data=filtered_data),
     "Future Releases": FutureReleasesScatter(app=app, data=data),
-    "Biggest Genre": BiggestGenreChart(app=app, data=filtered_data),
-    "Genre Popularity": GenrePopularityOverDecades(app=app, data=data),
-    "Genre Ranking": GenreVoteAverageOverDecades(app=app, data=data),
+    "Biggest Genre over Decades": BiggestGenreChart(app=app, data=filtered_data),
+    "Genre Popularity over Decades": GenrePopularityOverDecades(app=app, data=data),
+    "Genre Ranking over Decades": GenreVoteAverageOverDecades(app=app, data=data),
+    "Budget vs. Revenue Analysis": BudgetRevenueScatter(app=app, data=data),
+    "Rating vs. Popularity Analysis": RatingPopularityScatter(app=app, data=data),
 }
 
 # Sidebar Layout
