@@ -23,20 +23,44 @@ app = dash.Dash(
 # Load and preprocess data
 data = pd.read_csv("./data/Imdb-Movie-Dataset.csv").drop_duplicates()
 data["release_date"] = pd.to_datetime(data["release_date"], errors="coerce")
-filtered_data = data[data["release_date"] < pd.Timestamp("2025-01-01")].copy()
+
+# Filter out rows where revenue is <= 0
+filtered_data = data[data["revenue"] > 0].copy()
+
+# Adjust vote_average for any misformatted values (values greater than 10)
+# We'll assume any value above 10 is a misformatted number (e.g., 8364 should be 8.364)
+filtered_data["vote_average"] = filtered_data["vote_average"].apply(
+    lambda x: x / 1000 if x > 10 else x
+)
+
+# Convert release_date to datetime and filter for movies released before 2025
+filtered_data["release_date"] = pd.to_datetime(
+    filtered_data["release_date"], errors="coerce"
+)
+filtered_data = filtered_data[
+    filtered_data["release_date"] < pd.Timestamp("2025-01-01")
+].copy()
+
+# Add a decade column for analysis
 filtered_data["decade"] = (filtered_data["release_date"].dt.year // 10) * 10
 
 # Section Components
 sections = {
     "Overview": ItemAnalysis(app=app, data=filtered_data),
-    "Releases Per  Decade": ReleaseDecadeBar(app=app, data=filtered_data),
+    "Releases Per Decade": ReleaseDecadeBar(app=app, data=filtered_data),
     "Votes Per Decade": VotesDecadeBar(app=app, data=filtered_data),
     "Future Releases": FutureReleasesScatter(app=app, data=data),
     "Biggest Genre over Decades": BiggestGenreChart(app=app, data=filtered_data),
-    "Genre Popularity over Decades": GenrePopularityOverDecades(app=app, data=data),
-    "Genre Ranking over Decades": GenreVoteAverageOverDecades(app=app, data=data),
-    "Budget vs. Revenue Analysis": BudgetRevenueScatter(app=app, data=data),
-    "Rating vs. Popularity Analysis": RatingPopularityScatter(app=app, data=data),
+    "Genre Popularity over Decades": GenrePopularityOverDecades(
+        app=app, data=filtered_data
+    ),
+    "Genre Ranking over Decades": GenreVoteAverageOverDecades(
+        app=app, data=filtered_data
+    ),
+    "Budget vs. Revenue Analysis": BudgetRevenueScatter(app=app, data=filtered_data),
+    "Rating vs. Popularity Analysis": RatingPopularityScatter(
+        app=app, data=filtered_data
+    ),
 }
 
 # Sidebar Layout
