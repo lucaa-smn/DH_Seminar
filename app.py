@@ -13,7 +13,6 @@ from htmlSections.itemAnalysis import ItemAnalysis
 from htmlSections.GenreMovieRankingOverDecades import GenreVoteAverageOverDecades
 from htmlSections.budgetRevenueAnalysis import BudgetRevenueScatter
 from htmlSections.ratingPopularityScatter import RatingPopularityScatter
-import htmlSections.section
 
 # Initialize Dash app with Bootstrap theme
 app = dash.Dash(

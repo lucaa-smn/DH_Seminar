@@ -2,6 +2,7 @@ import dash
 import pandas as pd
 from dash import html, dcc
 import plotly.express as px
+from dash.dependencies import Input, Output
 from htmlSections.section import Section
 
 
@@ -13,29 +14,25 @@ class RatingPopularityScatter(Section):
         # Handle outliers: Filter data based on percentiles for vote_average and popularity
         self.filtered_data = self.remove_outliers(data)
 
-        # Create scatter plot without trendline
-        self.scatter_fig = px.scatter(
-            self.filtered_data,
-            x="vote_average",
-            y="popularity",
-            hover_data=["title", "vote_count", "release_date"],
-            labels={"vote_average": "Vote Average", "popularity": "Popularity"},
-            title="Rating vs. Popularity Correlation",
-        )
-
-        # Customize appearance
-        self.scatter_fig.update_traces(marker=dict(size=8, opacity=0.7))
-        self.scatter_fig.update_layout(
-            xaxis_title="Vote Average",
-            yaxis_title="Popularity",
-            title="Correlation Between Movie Ratings and Popularity",
-        )
+        # Initial scatter plot
+        self.scatter_fig = self.create_scatter_figure(self.filtered_data)
 
         # Create layout for Dash app
         self.div = html.Div(
             [
                 html.H1("Rating vs. Popularity Analysis"),
-                dcc.Graph(figure=self.scatter_fig),
+                dcc.Checklist(
+                    id="filter-vote-count",
+                    options=[
+                        {
+                            "label": "Filter movies with vote count < 5",
+                            "value": "filter",
+                        }
+                    ],
+                    value=[],  # Default: No filtering applied
+                    inline=True,
+                ),
+                dcc.Graph(id="scatter-graph", figure=self.scatter_fig),
             ]
         )
 
@@ -45,22 +42,31 @@ class RatingPopularityScatter(Section):
         return self.div
 
     def register_callbacks(self):
-        return super().register_callbacks()
+        @self.app.callback(
+            Output("scatter-graph", "figure"),
+            Input("filter-vote-count", "value"),
+        )
+        def update_scatter(selected_filter):
+            """Update scatter plot based on vote count filter."""
+            data = self.filtered_data
+
+            if "filter" in selected_filter:
+                data = data[data["vote_count"] >= 5]  # Apply filtering
+
+            return self.create_scatter_figure(data)
 
     def remove_outliers(self, data: pd.DataFrame) -> pd.DataFrame:
         """Remove outliers based on percentile filtering."""
-        # Define the lower and upper bounds for vote_average and popularity
         lower_percentile = 0.01
         upper_percentile = 0.99
 
-        # Get the percentiles for both vote_average and popularity
         vote_avg_lower = data["vote_average"].quantile(lower_percentile)
         vote_avg_upper = data["vote_average"].quantile(upper_percentile)
 
         popularity_lower = data["popularity"].quantile(lower_percentile)
         popularity_upper = data["popularity"].quantile(upper_percentile)
 
-        # Filter out rows where vote_average or popularity is outside the 1st or 99th percentiles
+        # Filter based on percentile thresholds
         filtered_data = data[
             (data["vote_average"] >= vote_avg_lower)
             & (data["vote_average"] <= vote_avg_upper)
@@ -69,3 +75,22 @@ class RatingPopularityScatter(Section):
         ]
 
         return filtered_data
+
+    def create_scatter_figure(self, data: pd.DataFrame):
+        """Generate scatter plot figure."""
+        fig = px.scatter(
+            data,
+            x="vote_average",
+            y="popularity",
+            hover_data=["title", "vote_count", "release_date"],
+            labels={"vote_average": "Vote Average", "popularity": "Popularity"},
+            title="Correlation Between Movie Ratings and Popularity",
+        )
+
+        fig.update_traces(marker=dict(size=8, opacity=0.7))
+        fig.update_layout(
+            xaxis_title="Vote Average",
+            yaxis_title="Popularity",
+        )
+
+        return fig
