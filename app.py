@@ -18,6 +18,7 @@ from htmlSections.runtimePopularityRevenue import RuntimePopularityRevenue
 from htmlSections.adultContentAnalysis import AdultContentAnalysis
 from htmlSections.productionCompanyAnalysis import ProductionCompanyAnalysis
 from htmlSections.countryPerformanceAnalysis import CountryPerformanceAnalysis
+from htmlSections.BudgetVoteAverageScatter import BudgetVoteAverageScatter
 
 # Initialize Dash app with Bootstrap theme
 app = dash.Dash(
@@ -63,6 +64,9 @@ sections = {
         app=app, data=filtered_data
     ),
     "Budget vs. Revenue Analysis": BudgetRevenueScatter(app=app, data=filtered_data),
+    "Budget vs. Vote Average Analysis": BudgetVoteAverageScatter(
+        app=app, data=filtered_data
+    ),
     "Rating vs. Popularity Analysis": RatingPopularityScatter(
         app=app, data=filtered_data
     ),
