@@ -5,7 +5,8 @@ from dash import dcc, html, callback, Input, Output
 
 # Importing Section Components
 from htmlSections.release_decade_bar import ReleaseDecadeBar
-from htmlSections.future_releases_scatter import FutureReleasesScatter
+
+# from htmlSections.future_releases_scatter import FutureReleasesScatter
 from htmlSections.votes_decade_bar import VotesDecadeBar
 from htmlSections.biggest_genre_decade import BiggestGenreChart
 from htmlSections.genrePopularityOverDecades import GenrePopularityOverDecades
@@ -13,6 +14,7 @@ from htmlSections.itemAnalysis import ItemAnalysis
 from htmlSections.GenreMovieRankingOverDecades import GenreVoteAverageOverDecades
 from htmlSections.budgetRevenueAnalysis import BudgetRevenueScatter
 from htmlSections.ratingPopularityScatter import RatingPopularityScatter
+from htmlSections.runtimePopularityRevenue import RuntimePopularityRevenue
 
 # Initialize Dash app with Bootstrap theme
 app = dash.Dash(
@@ -25,6 +27,7 @@ data["release_date"] = pd.to_datetime(data["release_date"], errors="coerce")
 
 # Filter out rows where revenue is <= 0
 filtered_data = data[data["revenue"] > 0].copy()
+filtered_data = filtered_data[filtered_data["runtime"] > 0].copy()
 
 # Adjust vote_average for any misformatted values (values greater than 10)
 # We'll assume any value above 10 is a misformatted number (e.g., 8364 should be 8.364)
@@ -48,7 +51,7 @@ sections = {
     "Overview": ItemAnalysis(app=app, data=filtered_data),
     "Releases Per Decade": ReleaseDecadeBar(app=app, data=filtered_data),
     "Votes Per Decade": VotesDecadeBar(app=app, data=filtered_data),
-    "Future Releases": FutureReleasesScatter(app=app, data=data),
+    # "Future Releases": FutureReleasesScatter(app=app, data=data),
     "Biggest Genre over Decades": BiggestGenreChart(app=app, data=filtered_data),
     "Genre Popularity over Decades": GenrePopularityOverDecades(
         app=app, data=filtered_data
@@ -58,6 +61,9 @@ sections = {
     ),
     "Budget vs. Revenue Analysis": BudgetRevenueScatter(app=app, data=filtered_data),
     "Rating vs. Popularity Analysis": RatingPopularityScatter(
+        app=app, data=filtered_data
+    ),
+    "Runtime vs. Popularity/Revenue Analysis": RuntimePopularityRevenue(
         app=app, data=filtered_data
     ),
 }
