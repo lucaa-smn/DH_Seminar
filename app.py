@@ -17,6 +17,7 @@ from htmlSections.ratingPopularityScatter import RatingPopularityScatter
 from htmlSections.runtimePopularityRevenue import RuntimePopularityRevenue
 from htmlSections.adultContentAnalysis import AdultContentAnalysis
 from htmlSections.productionCompanyAnalysis import ProductionCompanyAnalysis
+from htmlSections.countryPerformanceAnalysis import CountryPerformanceAnalysis
 
 # Initialize Dash app with Bootstrap theme
 app = dash.Dash(
@@ -70,6 +71,9 @@ sections = {
     ),
     "Adult Content Analysis": AdultContentAnalysis(app=app, data=filtered_data),
     "Production Company Analysis": ProductionCompanyAnalysis(
+        app=app, data=filtered_data
+    ),
+    "Country Performance Analysis": CountryPerformanceAnalysis(
         app=app, data=filtered_data
     ),
 }
