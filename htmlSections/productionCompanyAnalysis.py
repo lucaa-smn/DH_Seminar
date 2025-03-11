@@ -51,12 +51,13 @@ class ProductionCompanyAnalysis:
                     value=unique_companies[0] if unique_companies else None,
                     placeholder="Select a production company",
                 ),
-                # Radio buttons for selecting metric (Revenue or Vote Average)
+                # Radio buttons for selecting metric (Revenue, Vote Average, Popularity)
                 dcc.RadioItems(
                     id="metric-selector",
                     options=[
                         {"label": "Revenue", "value": "revenue"},
                         {"label": "Vote Average", "value": "vote_average"},
+                        {"label": "Popularity", "value": "popularity"},
                     ],
                     value="revenue",
                     inline=True,
@@ -101,8 +102,10 @@ class ProductionCompanyAnalysis:
         return self.div
 
     def register_callbacks(self):
+        # Callback for controlling the visibility of the aggregation radio buttons
         @self.app.callback(
-            Output("aggregation-selector", "style"), [Input("metric-selector", "value")]
+            Output("aggregation-selector", "style"),
+            [Input("metric-selector", "value")],
         )
         def update_aggregation_visibility(selected_metric):
             if selected_metric == "revenue":
@@ -110,6 +113,7 @@ class ProductionCompanyAnalysis:
             else:
                 return {"display": "none"}  # Hide otherwise
 
+        # Callback for updating the selected production company chart
         @self.app.callback(
             Output("production-company-chart", "figure"),
             [
@@ -127,15 +131,24 @@ class ProductionCompanyAnalysis:
                 self.filtered_data["production_companies"] == selected_company
             ]
 
-            # Aggregate data based on user selection (SUM or MEAN)
-            if aggregation_method == "sum":
-                company_stats = (
-                    company_data.groupby("production_companies")[selected_metric]
-                    .sum()
-                    .reset_index()
-                )
-                title_suffix = "Total"
-            else:
+            # Handle different metrics and aggregation methods
+            if selected_metric in ["revenue", "popularity"]:
+                if aggregation_method == "sum":
+                    company_stats = (
+                        company_data.groupby("production_companies")[selected_metric]
+                        .sum()
+                        .reset_index()
+                    )
+                    title_suffix = "Total"
+                else:
+                    company_stats = (
+                        company_data.groupby("production_companies")[selected_metric]
+                        .mean()
+                        .reset_index()
+                    )
+                    title_suffix = "Average"
+            elif selected_metric == "vote_average":
+                # Vote average does not use sum/mean aggregation options
                 company_stats = (
                     company_data.groupby("production_companies")[selected_metric]
                     .mean()
@@ -161,6 +174,7 @@ class ProductionCompanyAnalysis:
 
             return fig
 
+        # Callback for updating the top companies chart
         @self.app.callback(
             Output("top-companies-chart", "figure"),
             [
@@ -171,14 +185,26 @@ class ProductionCompanyAnalysis:
         )
         def update_top_companies_chart(selected_metric, aggregation_method, top_n):
             # Aggregate the data for the selected metric and aggregation method
-            if aggregation_method == "sum":
-                company_stats = (
-                    self.filtered_data.groupby("production_companies")[selected_metric]
-                    .sum()
-                    .reset_index()
-                )
-                title_suffix = "Total"
-            else:
+            if selected_metric in ["revenue", "popularity"]:
+                if aggregation_method == "sum":
+                    company_stats = (
+                        self.filtered_data.groupby("production_companies")[
+                            selected_metric
+                        ]
+                        .sum()
+                        .reset_index()
+                    )
+                    title_suffix = "Total"
+                else:
+                    company_stats = (
+                        self.filtered_data.groupby("production_companies")[
+                            selected_metric
+                        ]
+                        .mean()
+                        .reset_index()
+                    )
+                    title_suffix = "Average"
+            elif selected_metric == "vote_average":
                 company_stats = (
                     self.filtered_data.groupby("production_companies")[selected_metric]
                     .mean()
