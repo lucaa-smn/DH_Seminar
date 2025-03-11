@@ -16,6 +16,7 @@ from htmlSections.budgetRevenueAnalysis import BudgetRevenueScatter
 from htmlSections.ratingPopularityScatter import RatingPopularityScatter
 from htmlSections.runtimePopularityRevenue import RuntimePopularityRevenue
 from htmlSections.adultContentAnalysis import AdultContentAnalysis
+from htmlSections.productionCompanyAnalysis import ProductionCompanyAnalysis
 
 # Initialize Dash app with Bootstrap theme
 app = dash.Dash(
@@ -68,6 +69,9 @@ sections = {
         app=app, data=filtered_data
     ),
     "Adult Content Analysis": AdultContentAnalysis(app=app, data=filtered_data),
+    "Production Company Analysis": ProductionCompanyAnalysis(
+        app=app, data=filtered_data
+    ),
 }
 
 # Sidebar Layout
