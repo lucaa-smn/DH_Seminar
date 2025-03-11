@@ -15,6 +15,7 @@ from htmlSections.GenreMovieRankingOverDecades import GenreVoteAverageOverDecade
 from htmlSections.budgetRevenueAnalysis import BudgetRevenueScatter
 from htmlSections.ratingPopularityScatter import RatingPopularityScatter
 from htmlSections.runtimePopularityRevenue import RuntimePopularityRevenue
+from htmlSections.adultContentAnalysis import AdultContentAnalysis
 
 # Initialize Dash app with Bootstrap theme
 app = dash.Dash(
@@ -66,6 +67,7 @@ sections = {
     "Runtime vs. Popularity/Revenue Analysis": RuntimePopularityRevenue(
         app=app, data=filtered_data
     ),
+    "Adult Content Analysis": AdultContentAnalysis(app=app, data=filtered_data),
 }
 
 # Sidebar Layout
