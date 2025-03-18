@@ -31,24 +31,30 @@ data["release_date"] = pd.to_datetime(data["release_date"], errors="coerce")
 
 # Filter out rows where revenue is <= 0
 filtered_data = data[data["revenue"] > 0].copy()
+# print(filtered_data.shape)
 filtered_data = filtered_data[filtered_data["runtime"] > 0].copy()
+# print(filtered_data.shape)
 
-# Adjust vote_average for any misformatted values (values greater than 10)
-# We'll assume any value above 10 is a misformatted number (e.g., 8364 should be 8.364)
-filtered_data["vote_average"] = filtered_data["vote_average"].apply(
-    lambda x: x / 1000 if x > 10 else x
-)
-
+# print(filtered_data.describe())
+filtered_data = filtered_data[filtered_data["vote_count"] >= 25].copy()
+# print(filtered_data.shape)
+# print(filtered_data.describe())
 # Convert release_date to datetime and filter for movies released before 2025
 filtered_data["release_date"] = pd.to_datetime(
     filtered_data["release_date"], errors="coerce"
 )
-filtered_data = filtered_data[
-    filtered_data["release_date"] < pd.Timestamp("2025-01-01")
-].copy()
+filtered_data = filtered_data[filtered_data["status"] == "Released"].copy()
+filtered_data = filtered_data.drop(columns=["tagline"])
+filtered_data = filtered_data.dropna(subset=["release_date"])
+filtered_data = filtered_data.dropna(subset=["production_companies"])
+filtered_data = filtered_data.dropna(subset=["production_countries"])
 
 # Add a decade column for analysis
 filtered_data["decade"] = (filtered_data["release_date"].dt.year // 10) * 10
+# print("Final Data")
+# print(filtered_data.shape)
+# print(filtered_data.describe())
+# print(filtered_data.isna().sum())
 
 # Section Components
 sections = {
