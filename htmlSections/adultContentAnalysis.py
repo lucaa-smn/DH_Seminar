@@ -63,7 +63,7 @@ class AdultContentAnalysis(Section):
                 x="adult",
                 y=selected_metric,
                 color="adult",
-                title=f"Comparison of Adult and Non-Adult Movies by {selected_metric.capitalize()}",
+                title=f"Comparison of Adult and Non-Adult Movies by average {selected_metric.capitalize()}",
                 labels={
                     "adult": "Movie Type",
                     selected_metric: selected_metric.capitalize(),
