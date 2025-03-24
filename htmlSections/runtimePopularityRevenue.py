@@ -15,9 +15,7 @@ class RuntimePopularityRevenue(Section):
         self.filtered_data = self.remove_outliers(self.data)
 
         # Initial scatter plot (default: runtime vs popularity)
-        self.scatter_fig = self.create_scatter_figure(
-            self.filtered_data, "popularity", False
-        )
+        self.scatter_fig = self.create_scatter_figure(self.filtered_data, "popularity")
 
         # Layout with dropdown and filter button
         self.div = html.Div(
@@ -33,16 +31,6 @@ class RuntimePopularityRevenue(Section):
                     ],
                     value="popularity",  # Default selection
                 ),
-                # Button to filter movies with vote_count <= 5
-                dcc.Checklist(
-                    id="vote-filter-toggle",
-                    options=[
-                        {"label": "Exclude movies with ≤5 votes", "value": "filter"}
-                    ],
-                    value=[],  # Default: No filtering
-                    inline=True,
-                ),
-                # Graph
                 dcc.Graph(id="runtime-scatter-graph", figure=self.scatter_fig),
             ]
         )
@@ -55,14 +43,14 @@ class RuntimePopularityRevenue(Section):
     def register_callbacks(self):
         @self.app.callback(
             Output("runtime-scatter-graph", "figure"),
-            [Input("metric-dropdown", "value"), Input("vote-filter-toggle", "value")],
+            Input("metric-dropdown", "value"),
         )
-        def update_scatter(selected_metric, vote_filter):
+        def update_scatter(
+            selected_metric,
+        ):
             """Update scatter plot based on selected metric and vote count filter."""
-            apply_filter = "filter" in vote_filter
-            return self.create_scatter_figure(
-                self.filtered_data, selected_metric, apply_filter
-            )
+
+            return self.create_scatter_figure(self.filtered_data, selected_metric)
 
     def remove_outliers(self, data: pd.DataFrame) -> pd.DataFrame:
         """Removes extreme outliers for better visualization."""
@@ -91,12 +79,7 @@ class RuntimePopularityRevenue(Section):
 
         return filtered_data
 
-    def create_scatter_figure(
-        self, data: pd.DataFrame, metric: str, filter_votes: bool
-    ):
-        """Generates scatter plot based on selected metric (popularity or revenue)."""
-        if filter_votes:
-            data = data[data["vote_count"] > 5]
+    def create_scatter_figure(self, data: pd.DataFrame, metric: str):
 
         fig = px.scatter(
             data,

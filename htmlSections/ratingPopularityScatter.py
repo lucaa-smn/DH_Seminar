@@ -21,17 +21,6 @@ class RatingPopularityScatter(Section):
         self.div = html.Div(
             [
                 html.H1("Rating vs. Popularity Analysis"),
-                dcc.Checklist(
-                    id="filter-vote-count",
-                    options=[
-                        {
-                            "label": "Filter movies with vote count < 5",
-                            "value": "filter",
-                        }
-                    ],
-                    value=[],  # Default: No filtering applied
-                    inline=True,
-                ),
                 dcc.Graph(id="scatter-graph", figure=self.scatter_fig),
             ]
         )
@@ -42,18 +31,7 @@ class RatingPopularityScatter(Section):
         return self.div
 
     def register_callbacks(self):
-        @self.app.callback(
-            Output("scatter-graph", "figure"),
-            Input("filter-vote-count", "value"),
-        )
-        def update_scatter(selected_filter):
-            """Update scatter plot based on vote count filter."""
-            data = self.filtered_data
-
-            if "filter" in selected_filter:
-                data = data[data["vote_count"] >= 5]  # Apply filtering
-
-            return self.create_scatter_figure(data)
+        return super().register_callbacks()
 
     def remove_outliers(self, data: pd.DataFrame) -> pd.DataFrame:
         """Remove outliers based on percentile filtering."""

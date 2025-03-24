@@ -28,15 +28,6 @@ class AdultContentAnalysis(Section):
                     ],
                     value="revenue",  # Default selection
                 ),
-                # Checkbox to filter low vote count movies
-                dcc.Checklist(
-                    id="vote-filter-toggle-adult",
-                    options=[
-                        {"label": "Exclude movies with ≤5 votes", "value": "filter"}
-                    ],
-                    value=[],  # Default: No filtering
-                    inline=True,
-                ),
                 # Graph
                 dcc.Graph(id="adult-content-bar-chart"),
             ]
@@ -52,16 +43,11 @@ class AdultContentAnalysis(Section):
             Output("adult-content-bar-chart", "figure"),
             [
                 Input("metric-dropdown-adult", "value"),
-                Input("vote-filter-toggle-adult", "value"),
             ],
         )
-        def update_chart(selected_metric, vote_filter):
+        def update_chart(selected_metric):
             """Update the bar chart based on the selected metric and filtering option."""
             data = self.data.copy()
-            apply_filter = "filter" in vote_filter
-
-            if apply_filter:
-                data = data[data["vote_count"] > 5]
 
             # Group by 'adult' column and calculate mean for the selected metric
             grouped_data = data.groupby("adult")[selected_metric].mean().reset_index()

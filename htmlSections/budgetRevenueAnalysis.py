@@ -19,9 +19,6 @@ class BudgetRevenueScatter(Section):
         self.div = html.Div(
             [
                 html.H1("Budget vs. Revenue Analysis"),
-                html.Button(
-                    "Toggle Popularity Filter", id="popularity-filter-btn", n_clicks=0
-                ),
                 dcc.Graph(id="budget-revenue-graph", figure=self.scatter_fig),
             ]
         )
@@ -32,17 +29,7 @@ class BudgetRevenueScatter(Section):
         return self.div
 
     def register_callbacks(self):
-        @self.app.callback(
-            Output("budget-revenue-graph", "figure"),
-            Input("popularity-filter-btn", "n_clicks"),
-        )
-        def update_graph(n_clicks):
-            if n_clicks % 2 == 1:
-                filtered_df = self.filtered_data[self.filtered_data["popularity"] >= 1]
-            else:
-                filtered_df = self.filtered_data
-
-            return self.create_figure(filtered_df)
+        return super().register_callbacks()
 
     def create_figure(self, data):
         fig = px.scatter(
