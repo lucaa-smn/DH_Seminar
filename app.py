@@ -6,7 +6,7 @@ from dash import dcc, html, callback, Input, Output
 # Importing Section Components
 from htmlSections.release_decade_bar import ReleaseDecadeBar
 
-from htmlSections.votes_decade_bar import VotesDecadeBar
+# from htmlSections.votes_decade_bar import VotesDecadeBar
 from htmlSections.biggest_genre_decade import BiggestGenreChart
 from htmlSections.genrePopularityOverDecades import GenrePopularityOverDecades
 from htmlSections.itemAnalysis import ItemAnalysis
@@ -24,17 +24,32 @@ app = dash.Dash(
 # Load and preprocess data
 data = pd.read_csv("./data/Imdb-Movie-Dataset.csv").drop_duplicates()
 data["release_date"] = pd.to_datetime(data["release_date"], errors="coerce")
+# print(data.info())
+# print(data.isna().sum())
+
+# print("Rows with null values in genres, production_companies, or production_countries")
+# exam = data[
+#     data[["genres", "production_companies", "production_countries"]].isna().any(axis=1)
+# ]
+# print(exam.shape)
+# print(exam.describe())
+# print("Rows with revenue = 0:" + str(exam[exam["revenue"] == 0].shape))
+# print("Rows with budget = 0:" + str(exam[exam["budget"] == 0].shape))
 
 # Filter out rows where revenue is <= 0
+# print("Rows with revenue <= 0")
 filtered_data = data[data["revenue"] > 0].copy()
 # print(filtered_data.shape)
+
+# print("Rows with runtime <= 0")
 filtered_data = filtered_data[filtered_data["runtime"] > 0].copy()
+# filtered_data = filtered_data[filtered_data["runtime"] < 500].copy()
 # print(filtered_data.shape)
 
+# print("Still Rows with small vote_count")
 # print(filtered_data.describe())
 filtered_data = filtered_data[filtered_data["vote_count"] >= 25].copy()
-# print(filtered_data.shape)
-# print(filtered_data.describe())
+# print("Films with more than 24 votes"+str(filtered_data.shape))
 # Convert release_date to datetime and filter for movies released before 2025
 filtered_data["release_date"] = pd.to_datetime(
     filtered_data["release_date"], errors="coerce"
@@ -56,7 +71,6 @@ filtered_data["decade"] = (filtered_data["release_date"].dt.year // 10) * 10
 sections = {
     "Overview": ItemAnalysis(app=app, data=filtered_data),
     "Releases Per Decade": ReleaseDecadeBar(app=app, data=filtered_data),
-    "Votes Per Decade": VotesDecadeBar(app=app, data=filtered_data),
     "Biggest Genre over Decades": BiggestGenreChart(app=app, data=filtered_data),
     "Genre Popularity over Decades": GenrePopularityOverDecades(
         app=app, data=filtered_data

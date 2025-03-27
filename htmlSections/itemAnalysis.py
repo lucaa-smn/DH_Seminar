@@ -23,11 +23,9 @@ class ItemAnalysis:
 
         self.div = html.Div(
             [
-                # Title
                 html.H1(
                     "Item Analysis", style={"textAlign": "center", "color": "#333"}
                 ),
-                # Dropdown for selecting attribute
                 html.Label("Select Attribute for Analysis:"),
                 dcc.Dropdown(
                     id="attribute-dropdown",
@@ -37,26 +35,6 @@ class ItemAnalysis:
                     value=self.numeric_columns[0] if self.numeric_columns else None,
                     style={"width": "100%", "margin-bottom": "20px"},
                 ),
-                # Runtime Filter Section
-                html.Div(
-                    [
-                        html.Label("Runtime Outlier Filter:"),
-                        dcc.RadioItems(
-                            id="runtime-filter-radio",
-                            options=[
-                                {"label": "Filter Runtime Outliers", "value": "filter"},
-                                {"label": "No Filter", "value": "no_filter"},
-                            ],
-                            value="no_filter",
-                            labelStyle={
-                                "display": "inline-block",
-                                "margin-right": "20px",
-                            },
-                        ),
-                    ],
-                    style={"margin-bottom": "20px"},
-                ),
-                # Budget and Revenue Thresholds
                 html.Div(
                     [
                         dbc.Row(
@@ -93,15 +71,12 @@ class ItemAnalysis:
                         ),
                     ]
                 ),
-                # Statistical Summary
                 html.Div(id="statistical-summary2", style={"margin-bottom": "30px"}),
-                # Histogram Graph
                 dcc.Graph(id="histogram"),
             ],
             style={"padding": "20px"},
         )
 
-        # Registering the callbacks
         self.register_callbacks()
 
     def get_html(self) -> html.Div:
@@ -115,14 +90,11 @@ class ItemAnalysis:
             ],
             [
                 Input("attribute-dropdown", "value"),
-                Input("runtime-filter-radio", "value"),
                 Input("budget-threshold-input", "value"),
                 Input("revenue-threshold-input", "value"),
             ],
         )
-        def update_analysis(
-            attribute, runtime_filter, budget_threshold, revenue_threshold
-        ):
+        def update_analysis(attribute, budget_threshold, revenue_threshold):
             if not attribute:
                 return (
                     html.P("Please select an attribute for analysis."),
@@ -131,10 +103,6 @@ class ItemAnalysis:
 
             # Filter data based on user input
             filtered_data = self.data.copy()
-
-            # Filter out runtime outliers if selected
-            if runtime_filter == "filter" and attribute == "runtime":
-                filtered_data = self.filter_outliers(filtered_data, "runtime")
 
             # Apply budget and revenue thresholds
             filtered_data = self.filter_budget_revenue(
